@@ -83,9 +83,18 @@ export default defineManifestConfig({
     appid: VITE_WX_APPID,
     setting: {
       urlCheck: false,
+      es6: false,
+      enhance: false, // 关闭增强编译
+      showES6CompileOption: false,
     },
     usingComponents: true,
     // __usePrivacyCheck__: true,
+    permission: {
+      'scope.userLocation': {
+        desc: '将为您获取最近场站',
+      },
+    },
+    requiredPrivateInfos: ['chooseLocation', 'getLocation'],
   },
   'mp-alipay': {
     usingComponents: true,

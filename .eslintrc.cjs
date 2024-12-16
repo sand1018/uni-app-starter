@@ -69,6 +69,19 @@ module.exports = {
     'no-unused-vars': 'off',
     'no-param-reassign': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
+    camelcase: 'off',
+    'vue/html-self-closing': [
+      'error',
+      {
+        html: {
+          void: 'always', // 强制自闭合 void 元素（如 <img />）
+          normal: 'always', // 强制普通标签自闭合
+          component: 'always', // 强制组件自闭合
+        },
+        svg: 'always', // SVG 标签自闭合
+        math: 'always', // MathML 标签自闭合
+      },
+    ],
   },
   // eslint-import-resolver-typescript 插件，@see https://www.npmjs.com/package/eslint-import-resolver-typescript
   settings: {

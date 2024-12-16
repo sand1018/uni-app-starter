@@ -20,23 +20,34 @@ export default function useRequest<T>(
   const loading = ref(false)
   const error = ref(false)
   const data = ref<T>()
-  const run = async () => {
+  const msg = ref('')
+  const run = () => {
     loading.value = true
-    func()
-      .then((res) => {
-        data.value = res.data
-        error.value = false
-      })
-      .catch((err) => {
-        error.value = err
-      })
-      .finally(() => {
-        loading.value = false
-      })
+
+    return new Promise((resolve, reject) => {
+      func()
+        .then((res) => {
+          msg.value = res.msg
+          if (res.code === 0) {
+            data.value = res.data
+            error.value = false
+          } else {
+            error.value = true
+          }
+          resolve(res)
+        })
+        .catch((err) => {
+          error.value = true
+          reject(err)
+        })
+        .finally(() => {
+          loading.value = false
+        })
+    })
   }
 
   onLoad(() => {
     options.immediate && run()
   })
-  return { loading, error, data, run }
+  return { loading, error, data, run, msg }
 }

@@ -1,40 +1,61 @@
-import { useUserStore } from '@/store'
-import { getNeedLoginPages, needLoginPages as _needLoginPages } from '@/utils'
-
-// TODO Check
-const loginRoute = '/pages/login/index'
-
-const isLogined = () => {
-  const userStore = useUserStore()
-  return userStore.isLogined
-}
-
-const isDev = import.meta.env.DEV
+import { usePageStore } from '@/store/page'
+import useRouter from '@/hooks/useRouter'
+import { LoginPath } from '@/constants/index'
+import { useUserStore } from '@/store/user'
+import { getUrlObj, debounce } from '@/utils/index'
 
 // 黑名单登录拦截器 - （适用于大部分页面不需要登录，少部分页面需要登录）
-const navigateToInterceptor = {
+const navigateToInterceptor: UniApp.InterceptorOptions = {
   // 注意，这里的url是 '/' 开头的，如 '/pages/index/index'，跟 'pages.json' 里面的 path 不同
-  invoke({ url }: { url: string }) {
+  invoke(result) {
     // console.log(url) // /pages/route-interceptor/index?name=feige&age=30
-    const path = url.split('?')[0]
-    let needLoginPages: string[] = []
-    // 为了防止开发时出现BUG，这里每次都获取一下。生产环境可以移到函数外，性能更好
-    if (isDev) {
-      needLoginPages = getNeedLoginPages()
+    // const path = url.split('?')[0]
+
+    const { currentUrl, isTabBarPath, navigate, reLaunch } = useRouter()
+    const { isLogined } = useUserStore()
+    const { refreshCurrentPages } = usePageStore()
+
+    const navigateToLogin = debounce((url: string) => {
+      navigate({
+        url: LoginPath,
+        params: {
+          redirect: encodeURIComponent(url),
+        },
+      })
+    }, 10)
+
+    const relaunchToLogin = debounce((url: string) => {
+      reLaunch({
+        url: LoginPath,
+        params: {
+          redirect: encodeURIComponent(url),
+        },
+      })
+    }, 10)
+
+    const targetRoute = getUrlObj(result.url).path
+
+    if (!isLogined) {
+      if (currentUrl.value !== LoginPath && targetRoute !== LoginPath) {
+        if (!isTabBarPath.value) {
+          navigateToLogin(result.url)
+          return false
+        } else {
+          relaunchToLogin(result.url)
+          return false
+        }
+      } else {
+        refreshCurrentPages()
+        return true
+      }
     } else {
-      needLoginPages = _needLoginPages
-    }
-    const isNeedLogin = needLoginPages.includes(path)
-    if (!isNeedLogin) {
+      if (targetRoute === LoginPath) {
+        return false
+      }
+      // 刷新页面栈信息
+      refreshCurrentPages()
       return true
     }
-    const hasLogin = isLogined()
-    if (hasLogin) {
-      return true
-    }
-    const redirectRoute = `${loginRoute}?redirect=${encodeURIComponent(url)}`
-    uni.navigateTo({ url: redirectRoute })
-    return false
   },
 }
 
@@ -43,5 +64,7 @@ export const routeInterceptor = {
     uni.addInterceptor('navigateTo', navigateToInterceptor)
     uni.addInterceptor('reLaunch', navigateToInterceptor)
     uni.addInterceptor('redirectTo', navigateToInterceptor)
+    uni.addInterceptor('switchTab', navigateToInterceptor)
+    uni.addInterceptor('navigateBack', navigateToInterceptor)
   },
 }

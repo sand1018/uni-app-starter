@@ -8,9 +8,9 @@ import '@/style/index.scss'
 export function createApp() {
   const app = createSSRApp(App)
   app.use(store)
-  app.use(routeInterceptor)
   app.use(requestInterceptor)
   app.use(prototypeInterceptor)
+  app.use(routeInterceptor)
   return {
     app,
   }

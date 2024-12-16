@@ -22,9 +22,9 @@ if (isMp) {
   presets.push(
     presetApplet(),
     presetRemRpx({
-      // mode: 'rem2rpx',
-      // baseFontSize: 4,
-      // screenWidth: 750,
+      mode: 'rem2rpx',
+      baseFontSize: 4,
+      screenWidth: 750,
     }),
   )
 } else {
@@ -59,13 +59,22 @@ export default defineConfig({
    * @see https://github.com/unocss/unocss#shortcuts
    */
   shortcuts: {
+    'click-hover': 'op-60',
     'reset-button':
       'm-0 p-0 rounded-0 border-none text-[1em] bg-transparent leading-1em after:border-none',
-    'cu-button': 'active:scale-99',
+    'cu-button': 'active:(op-60)',
     'xy-center': 'flex items-center justify-center',
     'btn-primary':
-      'reset-button cu-button text-36 fw-500 xy-center bg-primary rounded-32 h-104 text-white ',
+      ' bg-primary !xy-center !h-100  !text-32 fw-bold text-white tracking-5 !rounded-16',
     'btn-disabled': '!pointer-events-none active:!scale-100 !opacity-70',
+    'absolute-x-center': 'absolute left-[50%] translate-x-[-50%]',
+    'absolute-y-center': 'absolute top-[50%] translate-y-[-50%]',
+    'absolute-xy-center': 'absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]',
+    'bb-solid': 'border-b border-b-solid border-[#eee]',
+    'tt-solid': 'border-t border-t-solid border-[#eee]',
+    'text-error': 'text-[#fa4350]',
+    'text-warning': 'text-[#f0883a]',
+    'text-success': 'text-[#34d19d]',
   },
   transformers: [
     // 启用 @apply 功能
@@ -90,6 +99,63 @@ export default defineConfig({
     ],
     ['pt-safe', { 'padding-top': 'env(safe-area-inset-top)' }],
     ['pb-safe', { 'padding-bottom': 'env(safe-area-inset-bottom)' }],
+    [
+      /^text-last-(\w+)$/,
+      ([, value]) => {
+        return { 'text-align-last': value }
+      },
+    ],
+    [
+      'text-primary',
+      {
+        '--un-text-opacity': 1,
+        color: 'rgb(64 158 255 / var(--un-text-opacity))',
+      },
+    ],
+    [
+      'bg-primary',
+      {
+        '--un-bg-opacity': 1,
+        'background-color': 'rgb(64 158 255 / var(--un-bg-opacity))',
+      },
+    ],
+    [
+      'border-primary',
+      {
+        '--un-border-opacity': 1,
+        'border-color': 'rgb(64 158 255 / var(--un-border-opacity))',
+      },
+    ],
+    [
+      'h-tabbar',
+      {
+        height: 'var(--wot-tabbar-height, 50px);',
+      },
+    ],
+    [
+      /^text-primary\/(\d+)$/,
+      ([, d]) => {
+        return { color: `rgba(64,158,255,${Number(d) / 100})` }
+      },
+    ],
+    [
+      /^bg-primary\/(\d+)$/,
+      ([, d]) => {
+        return { 'background-color': `rgba(64,158,255,${Number(d) / 100})` }
+      },
+    ],
+    [
+      /^ellipsis-(\d+)$/,
+      ([, d]) => {
+        return {
+          display: '-webkit-box',
+          overflow: 'hidden',
+          'text-overflow': 'ellipsis',
+          '-webkit-line-clamp': `${d}`,
+          '-webkit-box-orient': 'vertical',
+        }
+      },
+    ],
   ],
 })
 

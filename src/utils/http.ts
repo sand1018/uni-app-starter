@@ -1,8 +1,12 @@
 import { CustomRequestOptions } from '@/interceptors/request'
+import useRouter from '@/hooks/useRouter'
+import { useUserStore } from '@/store/user'
+import { LoginPath } from '@/constants/index'
+import { debounce } from '@/utils/index'
 
 export const http = <T>(options: CustomRequestOptions) => {
   // 1. 返回 Promise 对象
-  return new Promise<IResData<T>>((resolve, reject) => {
+  return new Promise<ApiResponse<T>>((resolve, reject) => {
     uni.request({
       ...options,
       dataType: 'json',
@@ -13,19 +17,38 @@ export const http = <T>(options: CustomRequestOptions) => {
       success(res) {
         // 状态码 2xx，参考 axios 的设计
         if (res.statusCode >= 200 && res.statusCode < 300) {
+          if ((res.data as any).code === 2) {
+            const { clearUserInfo } = useUserStore()
+            const { navigate, currentUrl, reLaunch, isTabBarPath } = useRouter()
+
+            const routeToLogin = debounce(() => {
+              if (isTabBarPath) {
+                reLaunch({
+                  url: LoginPath,
+                })
+              } else {
+                navigate({
+                  url: LoginPath,
+                })
+              }
+            }, 10)
+
+            //  清理用户信息，跳转到登录页
+            clearUserInfo()
+            if (currentUrl.value !== LoginPath) {
+              // 解决重复跳转登录页问题
+              routeToLogin()
+            }
+            reject(res)
+          }
           // 2.1 提取核心数据 res.data
-          resolve(res.data as IResData<T>)
-        } else if (res.statusCode === 401) {
-          // 401错误  -> 清理用户信息，跳转到登录页
-          // userStore.clearUserInfo()
-          // uni.navigateTo({ url: '/pages/login/login' })
-          reject(res)
+          resolve(res.data as ApiResponse<T>)
         } else {
           // 其他错误 -> 根据后端错误信息轻提示
           !options.hideErrorToast &&
             uni.showToast({
               icon: 'none',
-              title: (res.data as IResData<T>).msg || '请求错误',
+              title: (res.data as ApiResponse<T>).msg || '请求错误',
             })
           reject(res)
         }
@@ -48,10 +71,15 @@ export const http = <T>(options: CustomRequestOptions) => {
  * @param query 请求query参数
  * @returns
  */
-export const httpGet = <T>(url: string, query?: Record<string, any>) => {
+export const httpGet = <T>(
+  url: string,
+  options: {
+    query?: Record<string, any>
+  } = {},
+) => {
   return http<T>({
     url,
-    query,
+    query: options.query,
     method: 'GET',
   })
 }
@@ -65,13 +93,14 @@ export const httpGet = <T>(url: string, query?: Record<string, any>) => {
  */
 export const httpPost = <T>(
   url: string,
-  data?: Record<string, any>,
-  query?: Record<string, any>,
+  options: {
+    data?: Record<string, any>
+    query?: Record<string, any>
+  } = {},
 ) => {
   return http<T>({
     url,
-    query,
-    data,
+    data: options.data,
     method: 'POST',
   })
 }

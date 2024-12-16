@@ -28,15 +28,23 @@ const httpInterceptor = {
   // 拦截前触发
   invoke(options: CustomRequestOptions) {
     // 接口请求支持通过 query 参数配置 queryString
-    if (options.query) {
-      const queryStr = stringify(options.query)
-      if (options.url.includes('?')) {
-        options.url += `&${queryStr}`
-      } else {
-        options.url += `?${queryStr}`
-      }
-    }
     const userStore = useUserStore()
+
+    const query = {
+      ...(options.query ? options.query : {}),
+      lat: userStore.gps.latitude,
+      lng: userStore.gps.longitude,
+    }
+
+    const queryStr = stringify(query, {
+      indices: false,
+    })
+
+    if (options.url.includes('?')) {
+      options.url += `&${queryStr}`
+    } else {
+      options.url += `?${queryStr}`
+    }
 
     // 非 http 开头需拼接地址
     if (!options.url.startsWith('http')) {
@@ -48,7 +56,7 @@ const httpInterceptor = {
     // 2. （可选）添加小程序端请求头标识
     options.header = {
       'content-type': 'application/json; charset=UTF-8',
-      'mx-uuid': userStore.getUUID,
+      'mx-uuid': userStore.uuid,
       'mx-platform': platform,
       'mx-appid': getAppId(),
       ...options.header,

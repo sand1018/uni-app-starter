@@ -13,6 +13,7 @@ import UniPlatform from '@uni-helper/vite-plugin-uni-platform'
 import UniManifest from '@uni-helper/vite-plugin-uni-manifest'
 // @see https://github.com/uni-helper/vite-plugin-uni-components
 import UniComponents from '@uni-helper/vite-plugin-uni-components'
+import { WotResolver } from '@uni-helper/vite-plugin-uni-components/resolvers'
 // @see https://unocss.dev/
 import UnoCSS from 'unocss/vite'
 
@@ -50,13 +51,15 @@ export default ({ command, mode }) => {
         routeBlockLang: 'json5', // 虽然设了默认值，但是vue文件还是要加上 lang="json5", 这样才能很好地格式化
         // homePage 通过 vue 文件的 route-block 的type="home"来设定
         // pages 目录为 src/pages，分包目录不能配置在pages目录下
-        // subPackages: ['src/pages-sub'], // 是个数组，可以配置多个，但是不能为pages里面的目录
+        subPackages: ['src/pagesA'], // 是个数组，可以配置多个，但是不能为pages里面的目录
         dts: 'src/types/uni-pages.d.ts',
       }),
       UniLayouts(),
       UniPlatform(),
       UniManifest(),
-      UniComponents(),
+      UniComponents({
+        resolvers: [WotResolver()],
+      }),
       // UniXXX 需要在 Uni 之前引入
       Uni(),
       UnoCSS(),
@@ -107,6 +110,7 @@ export default ({ command, mode }) => {
       alias: {
         '@': path.join(process.cwd(), './src'),
         '@img': path.join(process.cwd(), './src/static/images'),
+        '@/pages': path.join(process.cwd(), './src/pages'),
       },
     },
     server: {

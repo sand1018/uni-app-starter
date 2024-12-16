@@ -1,5 +1,5 @@
 {
-  "name": "uni",
+  "name": "uni-app-start",
   "appid": "",
   "description": "",
   "versionName": "1.0.0",
@@ -52,11 +52,23 @@
   },
   "quickapp": {},
   "mp-weixin": {
-    "appid": "wxa2abb91f64032a2b",
+    "appid": "wxd6801458a49affc6",
     "setting": {
-      "urlCheck": false
+      "urlCheck": false,
+      "es6": false,
+      "enhance": false,
+      "showES6CompileOption": false
     },
-    "usingComponents": true
+    "usingComponents": true,
+    "permission": {
+      "scope.userLocation": {
+        "desc": "将为您获取最近场站"
+      }
+    },
+    "requiredPrivateInfos": [
+      "chooseLocation",
+      "getLocation"
+    ]
   },
   "mp-alipay": {
     "usingComponents": true,

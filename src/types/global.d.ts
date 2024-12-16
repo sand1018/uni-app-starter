@@ -12,3 +12,5 @@ declare const __UNI_PLATFORM__:
   | 'quickapp-webview'
   | 'quickapp-webview-huawei'
   | 'quickapp-webview-union'
+
+type LocationMap = Array<{ text: string; value: string; children?: LocationMap }>

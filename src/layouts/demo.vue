@@ -3,6 +3,7 @@
     <slot />
     <wd-toast />
     <wd-message-box />
+    <text>layout demo</text>
   </wd-config-provider>
 </template>
 

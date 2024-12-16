@@ -98,6 +98,23 @@
     "store": true,
     "useUserStore": true,
     "useModal": true,
-    "useAuth": true
+    "useAuth": true,
+    "usePageStore": true,
+    "useBoundingRect": true,
+    "usePagination": true,
+    "useSystemInfo": true,
+    "useClipboard": true,
+    "useUploadImage": true,
+    "useCountdown": true,
+    "useCustomMessage": true,
+    "useProcessGoodsInfo": true,
+    "usePageShare": true,
+    "DirectiveBinding": true,
+    "MaybeRef": true,
+    "MaybeRefOrGetter": true,
+    "onWatcherCleanup": true,
+    "useId": true,
+    "useModel": true,
+    "useTemplateRef": true
   }
 }

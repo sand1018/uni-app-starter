@@ -1,11 +1,40 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
 
-onLaunch(() => {
-  console.log('App Launch')
+const { refreshCurrentPages } = usePageStore()
+
+const updateManager = uni.getUpdateManager()
+
+updateManager.onCheckForUpdate(function (res) {
+  // 请求完新版本信息的回调
+  console.log(res.hasUpdate)
 })
-onShow(() => {
-  console.log('App Show')
+
+updateManager.onUpdateReady(function (res) {
+  uni.showModal({
+    title: '更新提示',
+    content: '新版本已经准备好，是否重启应用？',
+    success(res) {
+      if (res.confirm) {
+        // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+        updateManager.applyUpdate()
+      }
+    },
+  })
+})
+
+updateManager.onUpdateFailed(function (res) {
+  // 新的版本下载失败
+})
+
+onLaunch(() => {
+  // @ts-expect-error 监听页面切换，更新页面栈信息
+  uni.onAppRoute(() => {
+    refreshCurrentPages()
+  })
+})
+onShow((options) => {
+  console.log('🚀 ~ onShow ~ options:', options)
 })
 onHide(() => {
   console.log('App Hide')
@@ -14,45 +43,13 @@ onHide(() => {
 
 <style lang="scss">
 /* stylelint-disable selector-type-no-unknown */
+page {
+  font-size: 28rpx;
+  background-color: #f5f5f5;
+  @apply text-black/85;
+}
+
 button::after {
   border: none;
-}
-
-swiper,
-scroll-view {
-  flex: 1;
-  height: 100%;
-  overflow: hidden;
-}
-
-image {
-  width: 100%;
-  height: 100%;
-  vertical-align: middle;
-}
-
-// 单行省略，优先使用 unocss: text-ellipsis
-.ellipsis {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-// 两行省略
-.ellipsis-2 {
-  display: -webkit-box;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-// 三行省略
-.ellipsis-3 {
-  display: -webkit-box;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
 }
 </style>

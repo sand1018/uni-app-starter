@@ -2,28 +2,47 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { generateUUID } from '@/utils/index'
 import useStorage from '@/hooks/useStorage'
-import type { IUserInfo } from '@/service/user'
+import { DEFAULT_GPS } from '@/constants/index'
 
-const initState = { nickname: '', avatar: '' }
+type Gps = typeof DEFAULT_GPS
+
+const InitialUserInfo = {
+  id: '',
+  account_id: '',
+  type: '',
+  type_show: '',
+  name: '',
+  mobile: '',
+  avatar: {
+    filename: '',
+    bucket: '',
+    key: '',
+    url: '',
+  },
+  status: '',
+  created_at: '',
+  share_ratio: undefined,
+}
 
 export const useUserStore = defineStore(
   'user',
   () => {
-    const userInfo = ref<IUserInfo>({ ...initState })
+    const userInfo = ref({ ...InitialUserInfo })
+    const gps = ref<Gps>(DEFAULT_GPS)
 
-    const uuid = ref('')
+    const _uuid = ref('')
 
     const { getStorageSync, setStorageSync } = useStorage()
 
-    const getUUID = computed<string>(() => {
-      if (uuid.value) {
-        return uuid.value
+    const uuid = computed<string>(() => {
+      if (_uuid.value) {
+        return _uuid.value
       } else {
         const cacheUUID = getStorageSync('mx_uuid')
-        if (cacheUUID) return (uuid.value = cacheUUID)
+        if (cacheUUID) return (_uuid.value = cacheUUID)
         const genUUID = generateUUID()
         setStorageSync('mx_uuid', genUUID)
-        return (uuid.value = genUUID)
+        return (_uuid.value = genUUID)
       }
     })
 
@@ -32,17 +51,31 @@ export const useUserStore = defineStore(
     }
 
     const clearUserInfo = () => {
-      userInfo.value = { ...initState }
+      userInfo.value = { ...InitialUserInfo }
+    }
+
+    const setGps = (gpsValue: Gps) => {
+      gps.value = gpsValue
     }
 
     const isLogined = computed(() => !!userInfo.value.mobile)
+    const tabbars = computed(() => userInfo.value.tabbars)
+    const userType = computed(() => userInfo.value?.partner?.type)
+    const isAgentAccount = computed(
+      () => userInfo.value?.partner?.type === 'agent' || userInfo.value?.partner?.type === 'staff',
+    )
 
     return {
       userInfo,
       setUserInfo,
       clearUserInfo,
       isLogined,
-      getUUID,
+      uuid,
+      setGps,
+      gps,
+      tabbars,
+      userType,
+      isAgentAccount,
     }
   },
   {

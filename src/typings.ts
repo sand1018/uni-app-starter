@@ -6,6 +6,29 @@ type IResData<T> = {
   data: T
 }
 
+type ResponseList<T> = {
+  code: number
+  msg: string
+  data: {
+    list?: T[]
+    total?: number
+  }
+}
+
+type ApiResponse<T> = IResData<T> & ResponseList<T>
+
+type Pagination = {
+  page: number
+  size: number
+}
+
+interface UploadFileResult {
+  filename: string
+  bucket: string
+  key: string
+  url: string
+}
+
 // uni.uploadFile文件上传参数
 type IUniUploadFileOptions = {
   file?: File
@@ -23,3 +46,6 @@ enum TestEnum {
   A = 'a',
   B = 'b',
 }
+
+/** 账号类型 */
+type PartnerType = 'agent' | 'channel' | 'property' | 'staff'
