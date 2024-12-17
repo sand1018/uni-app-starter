@@ -6,6 +6,12 @@ export const Tabbars = [
     pagePath: '/pages/index/index',
     text: '首页',
   },
+  {
+    iconPath: '/static/images/home.png',
+    activeIconPath: '/static/images/home-active.png',
+    pagePath: '/pages/login/index',
+    text: '登录',
+  },
 ]
 
 /** 主题色 */
